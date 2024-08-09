@@ -2,3 +2,8 @@
 books = Book.objects.all()
 for book in books:
     print(book.title, book.author, book.publication_year)
+
+# OR
+
+# Get the book details by title
+Book.objects.get(title="1984")
