@@ -7,8 +7,30 @@ from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.shortcuts import redirect
+from django.contrib.auth.decorators import user_passes_test
+from django.http import HttpResponseForbidden
 
-# Create your views here.
+# Helper function to check user's role
+def role_check(user, role):
+    return user.is_authenticated and user.userprofile.role == role
+
+# Admin view
+@user_passes_test(lambda u: role_check(u, 'Admin'))
+def admin_view(request):
+    return render(request, 'admin_view.html')
+
+# Librarian view
+@user_passes_test(lambda u: role_check(u, 'Librarian'))
+def librarian_view(request):
+    return render(request, 'librarian_view.html')
+
+# Member view
+@user_passes_test(lambda u: role_check(u, 'Member'))
+def member_view(request):
+    return render(request, 'member_view.html')
+
+
+# Create more views here.
 
 class RegisterView(CreateView):
     form_class = UserCreationForm()
