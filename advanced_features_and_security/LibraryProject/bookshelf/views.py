@@ -38,8 +38,8 @@ def member_view(request):
     return render(request, 'bookshelf/member_view.html')
 
 # View to add a new book
-@permission_required('bookshelf.can_add_book', raise_exception=True)
-def add_book(request):
+@permission_required('bookshelf.can_create_book', raise_exception=True)
+def create_book(request):
     if request.method == "POST":
         form = BookForm(request.POST)
         if form.is_valid():
@@ -50,7 +50,7 @@ def add_book(request):
     return render(request, 'bookshelf/add_book.html', {'form': form})
 
 # View to edit an existing book
-@permission_required('bookshelf.can_change_book', raise_exception=True)
+@permission_required('bookshelf.can_edit_book', raise_exception=True)
 def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == "POST":

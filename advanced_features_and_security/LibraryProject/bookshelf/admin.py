@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Book, Author
+from .models import Book, Author, Library, Librarian
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
 
@@ -17,6 +17,20 @@ class AuthorAdmin(admin.ModelAdmin):
     list_filter = ('name',)
 
 admin.site.register(Author, AuthorAdmin)
+
+class LibrarianAdmin(admin.ModelAdmin):
+    list_display = ('name', 'library')
+    search_fields = ('name', 'library')
+    list_filter = ('name',)
+
+admin.site.register(Librarian, LibrarianAdmin)
+
+class LibraryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'books')
+    search_fields = ('name')
+    list_filter = ('name',)
+
+admin.site.register(Library, LibraryAdmin)
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
