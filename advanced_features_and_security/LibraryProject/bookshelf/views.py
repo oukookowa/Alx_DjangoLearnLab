@@ -25,20 +25,20 @@ def role_check(user, role):
 # Admin view
 @user_passes_test(lambda u: role_check(u, 'Admin'))
 def admin_view(request):
-    return render(request, 'relationship_app/admin_view.html')
+    return render(request, 'bookshelf/admin_view.html')
 
 # Librarian view
 @user_passes_test(lambda u: role_check(u, 'Librarian'))
 def librarian_view(request):
-    return render(request, 'relationship_app/librarian_view.html')
+    return render(request, 'bookshelf/librarian_view.html')
 
 # Member view
 @user_passes_test(lambda u: role_check(u, 'Member'))
 def member_view(request):
-    return render(request, 'relationship_app/member_view.html')
+    return render(request, 'bookshelf/member_view.html')
 
 # View to add a new book
-@permission_required('relationship_app.can_add_book')
+@permission_required('bookshelf.can_add_book')
 def add_book(request):
     if request.method == "POST":
         form = BookForm(request.POST)
@@ -47,10 +47,10 @@ def add_book(request):
             return redirect('list_books')
     else:
         form = BookForm()
-    return render(request, 'relationship_app/add_book.html', {'form': form})
+    return render(request, 'bookshelf/add_book.html', {'form': form})
 
 # View to edit an existing book
-@permission_required('relationship_app.can_change_book')
+@permission_required('bookshelf.can_change_book')
 def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == "POST":
@@ -60,22 +60,22 @@ def edit_book(request, pk):
             return redirect('list_books')
     else:
         form = BookForm(instance=book)
-    return render(request, 'relationship_app/edit_book.html', {'form': form})
+    return render(request, 'bookshelf/edit_book.html', {'form': form})
 
 # View to delete a book
-@permission_required('relationship_app.can_delete_book')
+@permission_required('bookshelf.can_delete_book')
 def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == "POST":
         book.delete()
         return redirect('list_books')
-    return render(request, 'relationship_app/delete_book.html', {'book': book})
+    return render(request, 'bookshelf/delete_book.html', {'book': book})
 
 # Create more views here.
 
 class RegisterView(CreateView):
     form_class = UserCreationForm
-    template_name = 'relationship_app/register.html'
+    template_name = 'bookshelf/register.html'
     success_url = reverse_lazy('login')
 
     def form_valid(self, form):
@@ -84,27 +84,27 @@ class RegisterView(CreateView):
         return redirect('index')
     
 class LoginView(LoginView):
-    template_name = 'relationship_app/login.html'
+    template_name = 'bookshelf/login.html'
     success_url = reverse_lazy('index')
     
 
 class LogoutView(LogoutView):
-    template_name = 'relationship_app/logout.html'
+    template_name = 'bookshelf/logout.html'
     success_url = reverse_lazy('login')
 
 def list_books(request):
     books = Book.objects.all()
     context = {'list_books': books}
-    return render(request, 'relationship_app/list_books.html', context)
+    return render(request, 'bookshelf/list_books.html', context)
 
 class LibraryDetailView(DetailView):
     model = Library
-    template_name = 'relationship_app/library_detail.html'
+    template_name = 'bookshelf/library_detail.html'
     context_object_name = 'library'
     
 def index(request):
     libraries = Library.objects.all()
-    return render(request, 'relationship_app/index.html', {'libraries': libraries})
+    return render(request, 'bookshelf/index.html', {'libraries': libraries})
 
 def profile(request):
-    return render(request, 'relationship_app/profile.html')
+    return render(request, 'bookshelf/profile.html')
