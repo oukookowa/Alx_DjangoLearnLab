@@ -38,7 +38,7 @@ def member_view(request):
     return render(request, 'bookshelf/member_view.html')
 
 # View to add a new book
-@permission_required('bookshelf.can_add_book')
+@permission_required('bookshelf.can_add_book', raise_exception=True)
 def add_book(request):
     if request.method == "POST":
         form = BookForm(request.POST)
@@ -50,7 +50,7 @@ def add_book(request):
     return render(request, 'bookshelf/add_book.html', {'form': form})
 
 # View to edit an existing book
-@permission_required('bookshelf.can_change_book')
+@permission_required('bookshelf.can_change_book', raise_exception=True)
 def edit_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == "POST":
@@ -63,7 +63,7 @@ def edit_book(request, pk):
     return render(request, 'bookshelf/edit_book.html', {'form': form})
 
 # View to delete a book
-@permission_required('bookshelf.can_delete_book')
+@permission_required('bookshelf.can_delete_book', raise_exception=True)
 def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == "POST":
@@ -92,9 +92,9 @@ class LogoutView(LogoutView):
     template_name = 'bookshelf/logout.html'
     success_url = reverse_lazy('login')
 
-def list_books(request):
+def book_list(request):
     books = Book.objects.all()
-    context = {'list_books': books}
+    context = {'book_list': books}
     return render(request, 'bookshelf/list_books.html', context)
 
 class LibraryDetailView(DetailView):
