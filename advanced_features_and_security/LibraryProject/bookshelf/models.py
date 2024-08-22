@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, BaseUserManager
+from django.conf import settings
 
 #Custom user manager
 class CustomUserManager(BaseUserManager):
@@ -23,17 +24,18 @@ class CustomUserManager(BaseUserManager):
 
         return self.create_user(username, email, password, **extra_fields)
 
+
 # Define custom user model and implement choices for user roles
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
-        ('editors', 'Editors'),
-        ('viewers', 'Viewers'),
-        ('admins', 'Admins'),
+        ('admin', 'Admin'),
+        ('librarian', 'Viewer'),
+        ('member', 'Member'),
     )
     # Defining extra user details
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
     date_of_birth = models.DateField(null=True, blank=True)
-    profile_photo = models.ImageField(upload_to='',null=True, blank=True )
+    profile_photo = models.ImageField(upload_to='profile_photos/',null=True, blank=True )
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -47,6 +49,14 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    bio = models.TextField(max_length=350)
+
+    def __str__(self):
+        return self.user.username
+
 
 # Create more models here.
 class Author(models.Model):
@@ -73,14 +83,14 @@ class Book(models.Model):
     
 class Library(models.Model):
     name = models.CharField(max_length=200)
-    books = models.ManyToManyField(Book, related_name='libraries')
+    books = models.ManyToManyField(Book, related_name='librarys')
 
     def __str__(self):
         return self.name
     
 class Librarian(models.Model):
     name = models.CharField(max_length=200)
-    library = models.OneToOneField(Library, on_delete=models.CASCADE)
+    library = models.OneToOneField(Library, on_delete=models.CASCADE, related_name='librarians')
 
     def __str__(self):
         return self.name

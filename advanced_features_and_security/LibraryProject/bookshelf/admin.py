@@ -19,15 +19,15 @@ class AuthorAdmin(admin.ModelAdmin):
 admin.site.register(Author, AuthorAdmin)
 
 class LibrarianAdmin(admin.ModelAdmin):
-    list_display = ('name', 'library')
-    search_fields = ('name', 'library')
+    list_display = ('name',)
+    search_fields = ('name',)
     list_filter = ('name',)
 
 admin.site.register(Librarian, LibrarianAdmin)
 
 class LibraryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'books')
-    search_fields = ('name')
+    list_display = ('name',)
+    search_fields = ('name',)
     list_filter = ('name',)
 
 admin.site.register(Library, LibraryAdmin)

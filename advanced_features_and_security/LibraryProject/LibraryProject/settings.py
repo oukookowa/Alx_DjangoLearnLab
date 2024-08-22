@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,16 +24,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b2(q8fq9hv$re_i&0$tsqsu4v&pclgd%4l+i5+i37^zhb2d(_l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'relationship_app.apps.RelationshipAppConfig',
-    'bookshelf.apps.BookshelfConfig',
+    'bookshelf',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
@@ -113,11 +114,33 @@ USE_I18N = True
 
 USE_TZ = True
 
+SECURE_BROWSER_XSS_FILTER = True  # Activates the browser's XSS filtering.
+X_FRAME_OPTIONS = 'DENY'  # Prevents the site from being loaded in a frame (Clickjacking protection).
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents browsers from guessing the content types.
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+#SECURE_SSL_REDIRECT = False  # Set true to redirect all non-HTTPS requests to HTTPS.
+
+#SECURE_HSTS_SECONDS = 31536000  # Enforces HTTPS for the next year.
+#SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#SECURE_HSTS_PRELOAD = True
+
+INSTALLED_APPS += ['csp']  # using django-csp header to prevent XSS attacks
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", 'https://trusted-scripts.example.com')
+CSP_IMG_SRC = ("'self'", 'https://trusted-images.example.com')
+CSP_STYLE_SRC = ("'self'", 'https://trusted-styles.example.com')
+# Add other CSP settings as needed
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+STATIC_ROOT = BASE_DIR / 'static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -127,3 +150,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/accounts/login/'
 
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+LOGIN_REDIRECT_URL = '/' 
+
+MEDIA_ROOT = BASE_DIR / 'media'
+
+MEDIA_URL = '/media/'

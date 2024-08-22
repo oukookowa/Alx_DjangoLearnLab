@@ -12,7 +12,7 @@
     <ul>
         {% for library in libraries %}
             <li>
-                <a href="{% url 'library-detail' pk=library.id %}">
+                <a href="{% url 'library_detail' pk=library.id %}">
                     {{ library.name }}
                 </a>
             </li>

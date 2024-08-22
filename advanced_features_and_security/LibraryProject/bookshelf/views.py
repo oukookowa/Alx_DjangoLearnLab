@@ -4,7 +4,6 @@ from .models import Library
 from django.views.generic.detail import DetailView
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
-from django.contrib.auth.forms import UserCreationForm
 from .forms import BookForm
 from django.contrib.auth import login
 from django.shortcuts import redirect, get_object_or_404
@@ -16,6 +15,7 @@ from django.views.generic.edit import CreateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.shortcuts import redirect
+from .forms import CustomUserCreationForm
 
 
 # Helper function to check user's role
@@ -74,18 +74,30 @@ def delete_book(request, pk):
 # Create more views here.
 
 class RegisterView(CreateView):
-    form_class = UserCreationForm
+    form_class = CustomUserCreationForm
     template_name = 'bookshelf/register.html'
     success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return redirect('index')
+        return redirect('login')
     
 class LoginView(LoginView):
     template_name = 'bookshelf/login.html'
-    success_url = reverse_lazy('index')
+    
+    def get_success_url(self):
+        user = self.request.user
+
+        # Check the user's role and return the appropriate URL
+        if user.role == 'admin':
+            return reverse_lazy('admin')  # replace with your admin view name
+        elif user.role == 'librarian':
+            return reverse_lazy('librarian')  # replace with your librarian view name
+        elif user.role == 'member':
+            return reverse_lazy('member')  # replace with your member view name
+        else:
+            return reverse_lazy('home')  # a fallback view
     
 
 class LogoutView(LogoutView):
