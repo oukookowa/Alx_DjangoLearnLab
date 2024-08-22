@@ -68,7 +68,7 @@ def delete_book(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == "POST":
         book.delete()
-        return redirect('list_books')
+        return redirect('book_list')
     return render(request, 'bookshelf/delete_book.html', {'book': book})
 
 # Create more views here.
@@ -107,7 +107,7 @@ class LogoutView(LogoutView):
 def book_list(request):
     books = Book.objects.all()
     context = {'book_list': books}
-    return render(request, 'bookshelf/list_books.html', context)
+    return render(request, 'bookshelf/book_list.html', context)
 
 class LibraryDetailView(DetailView):
     model = Library
