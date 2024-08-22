@@ -121,7 +121,8 @@ SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevents browsers from guessing the conten
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
-#SECURE_SSL_REDIRECT = False  # Set true to redirect all non-HTTPS requests to HTTPS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True  # Set true to redirect all non-HTTPS requests to HTTPS.
 
 #SECURE_HSTS_SECONDS = 31536000  # Enforces HTTPS for the next year.
 #SECURE_HSTS_INCLUDE_SUBDOMAINS = True
