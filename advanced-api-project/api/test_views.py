@@ -97,4 +97,4 @@ class BookAPITestCase(APITestCase):
         self.client.logout()  # Remove authentication credentials
         url = reverse('book-list')
         response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # Assuming permissions are required
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)  # Assuming permissions are required which is not the case for the book-list view
