@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import UserProfile, Post
 
 # Extend the django in-built UserCreationForm to include email
 class CustomUserCreationForm(UserCreationForm):
@@ -18,3 +18,24 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['bio', 'profile_photo', 'interests']
+
+# Form allowing authenticated users to create a post and owners to update a post
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content']  # Include only title and content fields
+
+    def __init__(self, *args, **kwargs):
+        # Custom initialization can be added here, if needed
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True, user=None):
+        """
+        Override the save method to automatically set the owner of the post.
+        """
+        post = super().save(commit=False)
+        if user is not None:
+            post.owner = user  # Set the owner to the logged-in user
+        if commit:
+            post.save()
+        return post
