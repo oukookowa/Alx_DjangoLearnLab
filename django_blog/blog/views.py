@@ -10,6 +10,7 @@ from .models import UserProfile, Post, Comment
 from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Q
 
 # Home page view
 class IndexView(TemplateView):
@@ -58,11 +59,25 @@ class PostListView(ListView):
     template_name = 'post_list.html'  # Path to your template
     context_object_name = 'posts'
 
+def search(request):
+    query = request.GET.get('q')
+    results = []
+    if query:
+        results = Post.objects.filter(
+            Q(title__icontains=query) | Q(content__icontains=query) | Q(tags__name__icontains=query)
+        ).distinct()
+
+    return render(request, 'blog/search_results.html', {'results': results, 'query': query})
+
 # View for individual post details 
 class PostDetailView(DetailView):
     model = Post
     template_name = 'post_detail.html'  # Path to your template
     context_object_name = 'post'
+
+def posts_by_tag(request, tag_name):
+    posts = Post.objects.filter(tags__name=tag_name)
+    return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tag_name': tag_name})
 
 # View for authenticated user to create a post
 class PostCreateView(LoginRequiredMixin, CreateView):

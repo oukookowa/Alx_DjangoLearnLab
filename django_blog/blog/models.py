@@ -11,13 +11,22 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
-    
+
+# Model that allows authenticated userto add a tag to a post
+class Tag(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
 # Post model for users to create a post
 class Post(models.Model):
     title = models.CharField(blank=False, max_length=200)
     content = models.TextField(blank=False)
     published_date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    # Tags attribute to add tags to a post
+    tags = models.ManyToManyField(Tag, related_name='posts', blank=True)
 
     def __str__(self):
         return self.title

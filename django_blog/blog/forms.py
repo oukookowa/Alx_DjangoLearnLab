@@ -21,9 +21,10 @@ class UserProfileForm(forms.ModelForm):
 
 # Form allowing authenticated users to create a post and owners to update a post
 class PostForm(forms.ModelForm):
+    tags = forms.CharField(max_length=255, required=False)
     class Meta:
         model = Post
-        fields = ['title', 'content']  # Include only title and content fields
+        fields = ['title', 'content', 'tags']  # Include only title, content, and tags fields
 
     #def clean_content(self):
         #content = self.cleaned_data.get('content')
