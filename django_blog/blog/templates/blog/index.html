@@ -1,33 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Django Blog{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="{% url 'home' %}">Home</a></li>
-                <li><a href="{% url 'posts' %}">Blog Posts</a></li>
-                <li><a href="{% url 'login' %}">Login</a></li>
-                <li><a href="{% url 'register' %}">Register</a></li>
-            </ul>
-        </nav>
-    </header>
+<!-- templates/index.html -->
+{% extends 'base.html' %}
 
-    <div class="content">
-        {% block content %}
-        <!-- Page-specific content goes here -->
-        {% endblock %}
-    </div>
+{% block title %}
+Home
+{% endblock %}
 
-    <footer>
-        <p>&copy; 2024 Django Blog</p>
-    </footer>
-
-    <script src="{% static 'js/scripts.js' %}"></script>
-</body>
-</html>
+{% block content %}
+<h1>Welcome to My Site!</h1>
+<p>This is the home page of the website.</p>
+{% endblock %}

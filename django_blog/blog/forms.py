@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import UserProfile, Post
+from .models import UserProfile, Post, Comment
 
 # Extend the django in-built UserCreationForm to include email
 class CustomUserCreationForm(UserCreationForm):
@@ -25,17 +25,38 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ['title', 'content']  # Include only title and content fields
 
-    def __init__(self, *args, **kwargs):
+    #def clean_content(self):
+        #content = self.cleaned_data.get('content')
+        #if len(content) < 1:
+            #raise forms.ValidationError("You cannot add an empty comment!")
+        #return content
+    
+    #def __init__(self, *args, **kwargs):
         # Custom initialization can be added here, if needed
-        super().__init__(*args, **kwargs)
+        #super().__init__(*args, **kwargs)
 
-    def save(self, commit=True, user=None):
-        """
-        Override the save method to automatically set the owner of the post.
-        """
-        post = super().save(commit=False)
-        if user is not None:
-            post.owner = user  # Set the owner to the logged-in user
-        if commit:
-            post.save()
-        return post
+    #def save(self, commit=True, user=None):
+        #Override the save method to automatically set the owner of the post
+        #post = super().save(commit=False)
+        #if user is not None:
+            #post.owner = user  # Set the owner to the logged-in user
+        #if commit:
+            #post.save()
+        #return post
+
+# Form allowing authenticated users to write a comment on a post    
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+
+    # Highlighted because the validation is done at the model level to exclude blank comments from being
+                    # saved on DB
+    # def clean_content(self):
+        #content = self.cleaned_data.get('content')
+        #if len(content) < 5:
+            #raise forms.ValidationError("You cannot add an empty comment!")
+        #return content
+
+
+# For both forms(Post & Comment) django forms validation and saving is not overriden!!

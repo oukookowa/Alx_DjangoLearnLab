@@ -1,18 +1,19 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
-from .forms import CustomUserCreationForm, UserProfileForm, PostForm 
+from .forms import CustomUserCreationForm, UserProfileForm, PostForm, CommentForm 
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from .models import UserProfile, Post
+from .models import UserProfile, Post, Comment
 from django.core.exceptions import PermissionDenied
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import TemplateView
 
-
+# Home page view
+class IndexView(TemplateView):
+    template_name = 'index.html'
 
 # Register view for users to register and log them in after registeration
 class RegisterView(CreateView):
@@ -107,5 +108,58 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         # Custom behavior when test_func returns False
         raise PermissionDenied("You do not have permission to delete this post.")
     
-class IndexView(TemplateView):
-    template_name = 'index.html'
+# View for all comments
+class CommentListView(ListView):
+    model = Comment
+    template_name = 'comment_list.html'  # Path to your template
+    context_object_name = 'comments'
+
+# View for individual comment details 
+class CommentDetailView(DetailView):
+    model = Comment
+    template_name = 'comment_detail.html'  # Path to your template
+    context_object_name = 'comment'
+
+# View for authenticated user to create a comment on a post
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    model = Comment
+    form_class = CommentForm  # Use the custom form
+    #fields = ['title', 'content']
+    template_name = 'comment_create.html'  # Path to your template
+    success_url = reverse_lazy('comment_list')
+
+    def form_valid(self, form):
+        form.instance.owner = self.request.user  # Set the comment owner to the current user
+        return super().form_valid(form)
+
+# View for comment owner to update a comment
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Comment
+    form_class = CommentForm  # Use the custom form
+    #fields = ['title', 'content']
+    template_name = 'comment_update.html'  # Path to your template
+    success_url = reverse_lazy('comment_list')
+
+    def test_func(self):
+        # Check if the current user is the owner of the comment
+        comment = self.get_object()
+        return comment.owner == self.request.user
+
+    def handle_no_permission(self):
+        # Custom behavior when test_func returns False
+        raise PermissionDenied("You do not have permission to edit this comment.")
+
+# View for comment owner to delete a comment
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Comment
+    template_name = 'comment_delete.html'  # Path to your template
+    success_url = reverse_lazy('comment_list')
+
+    def test_func(self):
+        # Check if the current user is the owner of the comment
+        post = self.get_object()
+        return post.owner == self.request.user
+
+    def handle_no_permission(self):
+        # Custom behavior when test_func returns False
+        raise PermissionDenied("You do not have permission to delete this comment.")

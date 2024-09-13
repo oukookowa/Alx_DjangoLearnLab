@@ -1,15 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-# Create your models here.
-class Post(models.Model):
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-    published_date = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
-
-    def __str__(self):
-        return self.title
 
 # User profile model for creating users'profile
 class UserProfile(models.Model):
@@ -20,3 +11,24 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+    
+# Post model for users to create a post
+class Post(models.Model):
+    title = models.CharField(blank=False, max_length=200)
+    content = models.TextField(blank=False)
+    published_date = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+
+    def __str__(self):
+        return self.title
+    
+# Comment model for users to comment on a post
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments" )
+    content = models.TextField(blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+
+    def __str__(self):
+        return f'Comment by {self.author} on {self.post}'
