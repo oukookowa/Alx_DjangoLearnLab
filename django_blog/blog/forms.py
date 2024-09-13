@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import UserProfile, Post, Comment
+from taggit.forms import TagWidget
 
 # Extend the django in-built UserCreationForm to include email
 class CustomUserCreationForm(UserCreationForm):
@@ -21,10 +22,12 @@ class UserProfileForm(forms.ModelForm):
 
 # Form allowing authenticated users to create a post and owners to update a post
 class PostForm(forms.ModelForm):
-    tags = forms.CharField(max_length=255, required=False)
     class Meta:
         model = Post
         fields = ['title', 'content', 'tags']  # Include only title, content, and tags fields
+        widgets = {
+            'tags': TagWidget(),  # Use TagWidget from django-taggit
+        }
 
     #def clean_content(self):
         #content = self.cleaned_data.get('content')
