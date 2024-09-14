@@ -1,8 +1,8 @@
 from django.urls import path
 from . import views
 from .views import LoginView, LogoutView, RegisterView, IndexView
-from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
-from .views import CommentListView, CommentDetailView, CommentCreateView, CommentUpdateView, CommentDeleteView, 
+from .views import PostListView, PostByTagListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
+from .views import CommentListView, CommentDetailView, CommentCreateView, CommentUpdateView, CommentDeleteView
 
 # Map blog views to url patterns
 urlpatterns = [
@@ -22,5 +22,5 @@ urlpatterns = [
     path('post/<int:pk>/comment/<int:pk>/update/', CommentUpdateView.as_view(), name='comment_update'),  # Edit/update a comment on a post
     path('post/<int:pk>/comment/<int:pk>/delete/', CommentDeleteView.as_view(), name='comment_delete'),  # Delete a comment on a post
     path('posts/search/', views.search, name='search_results'),
-    path('posts/tags/<str:tag_name>/', views.posts_by_tag, name='posts_by_tag'),
+    path('posts/tags/<slug:tag_slug>/', PostByTagListView.as_view(), name='posts_by_tag'),  # URL for filtering posts by tag
 ]

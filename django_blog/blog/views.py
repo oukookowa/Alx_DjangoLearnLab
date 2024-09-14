@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 # Home page view
 class IndexView(TemplateView):
@@ -59,6 +60,13 @@ class PostListView(ListView):
     template_name = 'post_list.html'  # Path to your template
     context_object_name = 'posts'
 
+# View for listing posts by tag
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'  # Template for displaying posts
+    context_object_name = 'posts'
+    paginate_by = 10  # Optional: paginate results
+
 def search(request):
     query = request.GET.get('q')
     results = []
@@ -75,9 +83,10 @@ class PostDetailView(DetailView):
     template_name = 'post_detail.html'  # Path to your template
     context_object_name = 'post'
 
-def posts_by_tag(request, tag_name):
-    posts = Post.objects.filter(tags__name=tag_name)
-    return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tag_name': tag_name})
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')  # Get tag_slug from the URL
+        tag = get_object_or_404(Tag, slug=tag_slug)  # Get the tag object, or 404 if it doesn't exist
+        return Post.objects.filter(tags__in=[tag])  # Filter posts by the tag
 
 # View for authenticated user to create a post
 class PostCreateView(LoginRequiredMixin, CreateView):
