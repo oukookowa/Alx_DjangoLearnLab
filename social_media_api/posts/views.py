@@ -11,16 +11,16 @@ User = get_user_model()
 
 # Feed view to display list of Posts from a users the current user is following
 class FeedView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated] #permissions.IsAuthenticated
     serializer_class = PostSerializer
 
     def get_queryset(self):
         # Get the current user
         user = self.request.user
         # Get the list of users the current user follows
-        followed_users = user.following.all()
+        following_users = user.following.all()
         # Retrieve posts from those users
-        return Post.objects.filter(user__in=followed_users).order_by('-created_at')
+        return Post.objects.filter(author__in=following_users).order_by('-created_at')
 
 class IsOwnerOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
