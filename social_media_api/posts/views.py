@@ -1,11 +1,15 @@
 from django.shortcuts import render
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, status
 from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
-from .models import Post, Comment
+from .models import Post, Comment, Like
 from .serializers import PostSerializer, CommentSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from notifications.models import Notification
+
 
 User = get_user_model()
 
@@ -21,7 +25,8 @@ class FeedView(generics.ListAPIView):
         following_users = user.following.all()
         # Retrieve posts from those users
         return Post.objects.filter(author__in=following_users).order_by('-created_at')
-
+    
+# Custom permission to allow read for everyone and write for the owner of the object
 class IsOwnerOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed to any request,
@@ -31,6 +36,39 @@ class IsOwnerOrReadOnly(BasePermission):
 
         # Write permissions are only allowed to the owner of the object.
         return obj.owner == request.user
+
+# View for liking a post  
+class LikePostView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+
+        if created:
+            # Create a notification
+            Notification.objects.create(
+                recipient=post.user,
+                actor=request.user,
+                verb='liked your post',
+                target=post
+            )
+            return Response({"detail": "Post liked."}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"detail": "You have already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
+
+# View for unliking a post
+class UnlikePostView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        try:
+            like = Like.objects.get(user=request.user, post=post)
+            like.delete()
+            return Response({"detail": "Post unliked."}, status=status.HTTP_204_NO_CONTENT)
+        except Like.DoesNotExist:
+            return Response({"detail": "You have not liked this post."}, status=status.HTTP_400_BAD_REQUEST)
     
 '''# For practice purposes, here's implementation of the views using generics API views
 # List all posts
