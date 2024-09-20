@@ -45,7 +45,7 @@ class FollowUserView(generics.GenericAPIView):
 
     def post(self, request, user_id):
         try:
-            user_to_follow = User.objects.get(id=user_id) #CustomUser.ojects.all()
+            user_to_follow = User.objects.get(id=user_id) #CustomUser.objects.all()
             request.user.following.add(user_to_follow)
             serialized_user = UserSerializer(user_to_follow)
             return Response({
