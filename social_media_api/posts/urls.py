@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import PostViewSet, CommentViewSet
+from .views import PostViewSet, CommentViewSet, FeedView
 from rest_framework.routers import DefaultRouter
 
 # Create a router to register the viewsets
@@ -11,4 +11,5 @@ router.register(r'comments', CommentViewSet) # Registers commentviewset
 # API urls are generated automatically by the router
 urlpatterns = [
     path('',include(router.urls)),
+    path('feed/', FeedView.as_view(), name='user-feed'),
 ]

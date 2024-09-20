@@ -1,22 +1,26 @@
 from django.shortcuts import render
-from rest_framework import viewsets #generics
+from rest_framework import viewsets, generics
 from rest_framework.permissions import SAFE_METHODS, BasePermission, IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django.contrib.auth import get_user_model
 
-# For practice purposes, here's implementation of the views using generics API views
-# List all posts
-class PostListView(generics.ListAPIView):
-    queryset = Post.objects.all()
+User = get_user_model()
+
+# Feed view to display list of Posts from a users the current user is following
+class FeedView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
-    permission_class = [IsAuthenticatedOrReadOnly]
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['title', 'author', 'created_at']
-    search_fields = ['title', 'author']
-    ordering_fields = ['title', 'created_at']
 
+    def get_queryset(self):
+        # Get the current user
+        user = self.request.user
+        # Get the list of users the current user follows
+        followed_users = user.following.all()
+        # Retrieve posts from those users
+        return Post.objects.filter(user__in=followed_users).order_by('-created_at')
 
 class IsOwnerOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -27,6 +31,18 @@ class IsOwnerOrReadOnly(BasePermission):
 
         # Write permissions are only allowed to the owner of the object.
         return obj.owner == request.user
+    
+'''# For practice purposes, here's implementation of the views using generics API views
+# List all posts
+class PostListView(generics.ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_class = [IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['title', 'author', 'created_at']
+    search_fields = ['title', 'author']
+    ordering_fields = ['title', 'created_at']
+
 
 # Retrieve a post based on its ID
 class PostDetailView(generics.RetrieveApiView):
@@ -85,7 +101,7 @@ class BookDeleteView(generics.DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_class = [IsOwnerOrReadOnly]
-
+'''
 
 # Implemented views using rest-framework's viewsets
 

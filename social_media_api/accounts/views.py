@@ -38,3 +38,35 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+    
+# A view to follow a particular user and error handling in case user doesn't exist
+class FollowUserView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            user_to_follow = User.objects.get(id=user_id)
+            request.user.following.add(user_to_follow)
+            serialized_user = UserSerializer(user_to_follow)
+            return Response({
+                "detail": "Now following.",
+                "user": serialized_user.data
+                }, status=status.HTTP_201_CREATED)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+# A view to unfollow a user and error handling in case user doesn't exist
+class UnfollowUserView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            user_to_unfollow = User.objects.get(id=user_id)
+            request.user.following.remove(user_to_unfollow)
+            serialized_user = UserSerializer(user_to_unfollow)
+            return Response({
+                "detail": "Unfollowed.",
+                "user": serialized_user.data
+                }, status=status.HTTP_204_NO_CONTENT)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
