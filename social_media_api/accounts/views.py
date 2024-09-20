@@ -40,12 +40,12 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         return self.request.user
     
 # A view to follow a particular user and error handling in case user doesn't exist
-class FollowUserView(generics.CreateAPIView):
-    permission_classes = [IsAuthenticated]
+class FollowUserView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]  #permissions.IsAuthenticated
 
     def post(self, request, user_id):
         try:
-            user_to_follow = User.objects.get(id=user_id)
+            user_to_follow = User.objects.get(id=user_id) #CustomUser.ojects.all()
             request.user.following.add(user_to_follow)
             serialized_user = UserSerializer(user_to_follow)
             return Response({
@@ -56,7 +56,7 @@ class FollowUserView(generics.CreateAPIView):
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 # A view to unfollow a user and error handling in case user doesn't exist
-class UnfollowUserView(generics.DestroyAPIView):
+class UnfollowUserView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, user_id):
