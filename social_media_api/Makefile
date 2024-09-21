@@ -1,5 +1,5 @@
 sv:
-	python manage.py runserever
+	python manage.py runserver
 
 db:
 	python manage.py makemigrations
